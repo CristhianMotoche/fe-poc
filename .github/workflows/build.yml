@@ -1,0 +1,32 @@
+name: Build Amigo Secreto
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'amigo-secreto/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'amigo-secreto/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (example)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+
+      - name: Install dependencies and build
+        run: |
+          cd subproject1/
+          yarn install
+          yarn build
