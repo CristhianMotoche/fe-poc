@@ -166,17 +166,49 @@ const ParticipantInputGroup = styled.div`
   gap: 0.5rem;
 `;
 
+const ErrorMessage = styled.span`
+  font-size: 0.8rem;
+  color: #e53e3e;
+`;
+
+interface Participant {
+  name: string;
+  phone: string;
+}
+
+const PHONE_REGEX = /^\+?[\d\s\-().]{7,20}$/;
+
 const GameSetup: React.FC = () => {
   const navigate = useNavigate();
   const [gameName, setGameName] = useState('');
-  const [participants, setParticipants] = useState<string[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [currentName, setCurrentName] = useState('');
+  const [currentPhone, setCurrentPhone] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+
+  const validatePhone = (phone: string): boolean => {
+    if (!phone.trim()) {
+      setPhoneError('El teléfono es requerido');
+      return false;
+    }
+    if (!PHONE_REGEX.test(phone.trim())) {
+      setPhoneError('Número de teléfono inválido');
+      return false;
+    }
+    setPhoneError('');
+    return true;
+  };
 
   const handleAddParticipant = () => {
-    if (currentName.trim() && !participants.includes(currentName.trim())) {
-      setParticipants([...participants, currentName.trim()]);
-      setCurrentName('');
-    }
+    const name = currentName.trim();
+    const phone = currentPhone.trim();
+    if (!name) return;
+    if (!validatePhone(phone)) return;
+    if (participants.some((p) => p.name === name)) return;
+    setParticipants([...participants, { name, phone }]);
+    setCurrentName('');
+    setCurrentPhone('');
+    setPhoneError('');
   };
 
   const handleRemoveParticipant = (index: number) => {
@@ -196,7 +228,7 @@ const GameSetup: React.FC = () => {
       alert('Debes agregar al menos 2 participantes');
       return;
     }
-    alert(`Juego: ${gameName}\nParticipantes:\n${participants.join('\n')}`);
+    alert(`Juego: ${gameName}\nParticipantes:\n${participants.map((p) => `${p.name} (${p.phone})`).join('\n')}`);
   };
 
   const handleCancel = () => {
@@ -231,19 +263,29 @@ const GameSetup: React.FC = () => {
                 onKeyPress={handleKeyPress}
                 placeholder="Nombre del participante"
               />
+              <Input
+                id="participantPhone"
+                type="tel"
+                value={currentPhone}
+                onChange={(e) => { setCurrentPhone(e.target.value); setPhoneError(''); }}
+                onKeyPress={handleKeyPress}
+                placeholder="Teléfono"
+                style={{ maxWidth: '160px' }}
+              />
               <AddButton type="button" onClick={handleAddParticipant}>
                 Agregar
               </AddButton>
             </ParticipantInputGroup>
+            {phoneError && <ErrorMessage>{phoneError}</ErrorMessage>}
           </FormGroup>
 
           {participants.length > 0 && (
             <FormGroup>
               <Label>Lista de participantes ({participants.length})</Label>
               <ParticipantsList>
-                {participants.map((name, index) => (
+                {participants.map((participant, index) => (
                   <ParticipantItem key={index}>
-                    <ParticipantName>{name}</ParticipantName>
+                    <ParticipantName>{participant.name} — {participant.phone}</ParticipantName>
                     <RemoveButton onClick={() => handleRemoveParticipant(index)}>
                       Eliminar
                     </RemoveButton>

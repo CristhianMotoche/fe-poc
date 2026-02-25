@@ -30,13 +30,15 @@ describe('GameSetup Component Tests', () => {
       </MemoryRouter>
     );
     
-    const input = screen.getByPlaceholderText('Nombre del participante');
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
     const addButton = screen.getByText('Agregar');
     
-    await user.type(input, 'Juan');
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+1234567890');
     await user.click(addButton);
     
-    expect(screen.getByText('Juan')).toBeInTheDocument();
+    expect(screen.getByText('Juan — +1234567890')).toBeInTheDocument();
     expect(screen.getByText('Lista de participantes (1)')).toBeInTheDocument();
   });
 
@@ -49,21 +51,25 @@ describe('GameSetup Component Tests', () => {
       </MemoryRouter>
     );
     
-    const input = screen.getByPlaceholderText('Nombre del participante');
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
     const addButton = screen.getByText('Agregar');
     
-    await user.type(input, 'Juan');
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+1111111111');
     await user.click(addButton);
     
-    await user.type(input, 'Maria');
+    await user.type(nameInput, 'Maria');
+    await user.type(phoneInput, '+2222222222');
     await user.click(addButton);
     
-    await user.type(input, 'Pedro');
+    await user.type(nameInput, 'Pedro');
+    await user.type(phoneInput, '+3333333333');
     await user.click(addButton);
     
-    expect(screen.getByText('Juan')).toBeInTheDocument();
-    expect(screen.getByText('Maria')).toBeInTheDocument();
-    expect(screen.getByText('Pedro')).toBeInTheDocument();
+    expect(screen.getByText('Juan — +1111111111')).toBeInTheDocument();
+    expect(screen.getByText('Maria — +2222222222')).toBeInTheDocument();
+    expect(screen.getByText('Pedro — +3333333333')).toBeInTheDocument();
     expect(screen.getByText('Lista de participantes (3)')).toBeInTheDocument();
   });
 
@@ -76,13 +82,16 @@ describe('GameSetup Component Tests', () => {
       </MemoryRouter>
     );
     
-    const input = screen.getByPlaceholderText('Nombre del participante');
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
     const addButton = screen.getByText('Agregar');
     
-    await user.type(input, 'Juan');
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+1111111111');
     await user.click(addButton);
     
-    await user.type(input, 'Maria');
+    await user.type(nameInput, 'Maria');
+    await user.type(phoneInput, '+2222222222');
     await user.click(addButton);
     
     expect(screen.getByText('Lista de participantes (2)')).toBeInTheDocument();
@@ -90,8 +99,8 @@ describe('GameSetup Component Tests', () => {
     const removeButtons = screen.getAllByText('Eliminar');
     await user.click(removeButtons[0]);
     
-    expect(screen.queryByText('Juan')).not.toBeInTheDocument();
-    expect(screen.getByText('Maria')).toBeInTheDocument();
+    expect(screen.queryByText('Juan — +1111111111')).not.toBeInTheDocument();
+    expect(screen.getByText('Maria — +2222222222')).toBeInTheDocument();
     expect(screen.getByText('Lista de participantes (1)')).toBeInTheDocument();
   });
 
@@ -104,13 +113,16 @@ describe('GameSetup Component Tests', () => {
       </MemoryRouter>
     );
     
-    const input = screen.getByPlaceholderText('Nombre del participante') as HTMLInputElement;
+    const nameInput = screen.getByPlaceholderText('Nombre del participante') as HTMLInputElement;
+    const phoneInput = screen.getByPlaceholderText('Teléfono') as HTMLInputElement;
     const addButton = screen.getByText('Agregar');
     
-    await user.type(input, 'Juan');
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+1234567890');
     await user.click(addButton);
     
-    expect(input.value).toBe('');
+    expect(nameInput.value).toBe('');
+    expect(phoneInput.value).toBe('');
   });
 
   it('should add participant when pressing Enter', async () => {
@@ -122,11 +134,13 @@ describe('GameSetup Component Tests', () => {
       </MemoryRouter>
     );
     
-    const input = screen.getByPlaceholderText('Nombre del participante');
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
     
-    await user.type(input, 'Juan{Enter}');
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+1234567890{Enter}');
     
-    expect(screen.getByText('Juan')).toBeInTheDocument();
+    expect(screen.getByText('Juan — +1234567890')).toBeInTheDocument();
   });
 
   it('should show alert with game details when submitting with valid data', async () => {
@@ -140,18 +154,24 @@ describe('GameSetup Component Tests', () => {
     );
     
     const gameNameInput = screen.getByLabelText('Nombre del juego');
-    const participantInput = screen.getByPlaceholderText('Nombre del participante');
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
     const addButton = screen.getByText('Agregar');
     const submitButton = screen.getByText('Crear Juego');
     
     await user.type(gameNameInput, 'Amigo Secreto 2026');
-    await user.type(participantInput, 'Juan{Enter}');
-    await user.type(participantInput, 'Maria');
+    
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+1111111111');
+    await user.click(addButton);
+    
+    await user.type(nameInput, 'Maria');
+    await user.type(phoneInput, '+2222222222');
     await user.click(addButton);
     
     await user.click(submitButton);
     
-    expect(alertSpy).toHaveBeenCalledWith('Juego: Amigo Secreto 2026\nParticipantes:\nJuan\nMaria');
+    expect(alertSpy).toHaveBeenCalledWith('Juego: Amigo Secreto 2026\nParticipantes:\nJuan (+1111111111)\nMaria (+2222222222)');
     
     alertSpy.mockRestore();
   });
@@ -189,16 +209,19 @@ describe('GameSetup Component Tests', () => {
       </MemoryRouter>
     );
     
-    const input = screen.getByPlaceholderText('Nombre del participante');
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
     const addButton = screen.getByText('Agregar');
     
-    await user.type(input, 'Juan');
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+1111111111');
     await user.click(addButton);
     
-    await user.type(input, 'Juan');
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, '+9999999999');
     await user.click(addButton);
     
-    const participants = screen.getAllByText('Juan');
+    const participants = screen.getAllByText('Juan — +1111111111');
     expect(participants).toHaveLength(1);
     expect(screen.getByText('Lista de participantes (1)')).toBeInTheDocument();
   });
@@ -217,5 +240,66 @@ describe('GameSetup Component Tests', () => {
     await user.click(addButton);
     
     expect(screen.queryByText('Lista de participantes')).not.toBeInTheDocument();
+  });
+
+  it('should show error when phone is empty', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <GameSetup />
+      </MemoryRouter>
+    );
+
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const addButton = screen.getByText('Agregar');
+
+    await user.type(nameInput, 'Juan');
+    await user.click(addButton);
+
+    expect(screen.getByText('El teléfono es requerido')).toBeInTheDocument();
+    expect(screen.queryByText('Lista de participantes (1)')).not.toBeInTheDocument();
+  });
+
+  it('should show error when phone is invalid', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <GameSetup />
+      </MemoryRouter>
+    );
+
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
+    const addButton = screen.getByText('Agregar');
+
+    await user.type(nameInput, 'Juan');
+    await user.type(phoneInput, 'abc');
+    await user.click(addButton);
+
+    expect(screen.getByText('Número de teléfono inválido')).toBeInTheDocument();
+    expect(screen.queryByText('Lista de participantes (1)')).not.toBeInTheDocument();
+  });
+
+  it('should clear phone error when typing a valid phone', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <GameSetup />
+      </MemoryRouter>
+    );
+
+    const nameInput = screen.getByPlaceholderText('Nombre del participante');
+    const phoneInput = screen.getByPlaceholderText('Teléfono');
+    const addButton = screen.getByText('Agregar');
+
+    await user.type(nameInput, 'Juan');
+    await user.click(addButton);
+    expect(screen.getByText('El teléfono es requerido')).toBeInTheDocument();
+
+    await user.type(phoneInput, '+1234567890');
+    expect(screen.queryByText('El teléfono es requerido')).not.toBeInTheDocument();
   });
 });
